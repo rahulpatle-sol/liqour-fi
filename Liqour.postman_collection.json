@@ -1,0 +1,290 @@
+{
+  "info": {
+    "name": "Liqour 🥃 — Social Perps API",
+    "description": "Full API collection for Liqour backend. Set BASE_URL and TOKEN variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "BASE_URL", "value": "http://localhost:3000" },
+    { "key": "TOKEN",    "value": "" },
+    { "key": "WALLET",   "value": "YourSolanaWalletAddressHere" },
+    { "key": "LEADER_ID","value": "" }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Get Nonce",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/auth/nonce?wallet={{WALLET}}",
+            "description": "Get message to sign with Solana wallet"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"wallet_address\": \"{{WALLET}}\",\n  \"signature\": \"YOUR_SIGNATURE_HERE\",\n  \"nonce\": \"NONCE_FROM_PREVIOUS_CALL\"\n}"
+            },
+            "description": "Login with wallet signature. Copy token to TOKEN variable."
+          }
+        },
+        {
+          "name": "Set Username",
+          "request": {
+            "method": "PUT",
+            "url": "{{BASE_URL}}/auth/username",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"username\": \"CryptoWhale\" }"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Markets",
+      "item": [
+        {
+          "name": "Get All Markets",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/markets",
+            "description": "SOL, BTC, ETH overview with price, 24h stats"
+          }
+        },
+        {
+          "name": "Get SOL Market",
+          "request": { "method": "GET", "url": "{{BASE_URL}}/markets/SOL" }
+        },
+        {
+          "name": "Get SOL Candles",
+          "request": { "method": "GET", "url": "{{BASE_URL}}/markets/SOL/candles?limit=100" }
+        },
+        {
+          "name": "Get SOL Recent Trades",
+          "request": { "method": "GET", "url": "{{BASE_URL}}/markets/SOL/trades" }
+        },
+        {
+          "name": "Get BTC Candles",
+          "request": { "method": "GET", "url": "{{BASE_URL}}/markets/BTC/candles" }
+        },
+        {
+          "name": "Get ETH Market",
+          "request": { "method": "GET", "url": "{{BASE_URL}}/markets/ETH" }
+        }
+      ]
+    },
+    {
+      "name": "📈 Orders",
+      "item": [
+        {
+          "name": "Place Market Long SOL",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/orders",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"market\": \"SOL\",\n  \"side\": \"long\",\n  \"type\": \"market\",\n  \"qty\": 1.0,\n  \"leverage\": 5\n}"
+            }
+          }
+        },
+        {
+          "name": "Place Market Short BTC",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/orders",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"market\": \"BTC\",\n  \"side\": \"short\",\n  \"type\": \"market\",\n  \"qty\": 0.001,\n  \"leverage\": 10\n}"
+            }
+          }
+        },
+        {
+          "name": "Place Limit Long ETH",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/orders",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"market\": \"ETH\",\n  \"side\": \"long\",\n  \"type\": \"limit\",\n  \"price\": 3000.0,\n  \"qty\": 0.1,\n  \"leverage\": 3\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "DELETE",
+            "url": "{{BASE_URL}}/orders/ORDER_ID_HERE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{TOKEN}}" }]
+          }
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/orders",
+            "header": [{ "key": "Authorization", "value": "Bearer {{TOKEN}}" }]
+          }
+        },
+        {
+          "name": "Get Open Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/orders?status=open",
+            "header": [{ "key": "Authorization", "value": "Bearer {{TOKEN}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "💼 Positions",
+      "item": [
+        {
+          "name": "Get Open Positions + Balance",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/positions",
+            "header": [{ "key": "Authorization", "value": "Bearer {{TOKEN}}" }]
+          }
+        },
+        {
+          "name": "Get Trade History",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/positions/history",
+            "header": [{ "key": "Authorization", "value": "Bearer {{TOKEN}}" }]
+          }
+        },
+        {
+          "name": "Get SOL Candles (from positions route)",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/positions/candles/SOL?limit=100",
+            "header": [{ "key": "Authorization", "value": "Bearer {{TOKEN}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏆 Leaderboard",
+      "item": [
+        {
+          "name": "Top Traders (by PnL)",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/leaderboard?sort=pnl&limit=20"
+          }
+        },
+        {
+          "name": "Top Traders (by volume)",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/leaderboard?sort=volume"
+          }
+        },
+        {
+          "name": "Top Traders (by win rate)",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/leaderboard?sort=winrate"
+          }
+        },
+        {
+          "name": "Top Traders (by followers)",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/leaderboard?sort=followers"
+          }
+        },
+        {
+          "name": "Get Trader Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/leaderboard/{{LEADER_ID}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Copy Trading",
+      "item": [
+        {
+          "name": "Follow Trader (Start Copy)",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/follow",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{TOKEN}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leader_id\": \"{{LEADER_ID}}\",\n  \"copy_amount\": 100\n}",
+              "description": "Allocate 100 USDC to copy this trader"
+            }
+          }
+        },
+        {
+          "name": "Unfollow Trader",
+          "request": {
+            "method": "DELETE",
+            "url": "{{BASE_URL}}/follow/{{LEADER_ID}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{TOKEN}}" }]
+          }
+        },
+        {
+          "name": "Who Am I Copying",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/follow/following",
+            "header": [{ "key": "Authorization", "value": "Bearer {{TOKEN}}" }]
+          }
+        },
+        {
+          "name": "My Followers",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/follow/followers",
+            "header": [{ "key": "Authorization", "value": "Bearer {{TOKEN}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "❤️ Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": "{{BASE_URL}}/health" }
+        },
+        {
+          "name": "API Index",
+          "request": { "method": "GET", "url": "{{BASE_URL}}/" }
+        }
+      ]
+    }
+  ]
+}
