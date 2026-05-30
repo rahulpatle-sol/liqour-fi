@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT margin, qty FROM orders WHERE order_id = $1 AND user_id = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "margin",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 1,
+        "name": "qty",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "37548d3ce2bbce3e537ccc49cc05c83fd774958498361a9f9614d4c4c892ee67"
+}

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE trader_stats SET follower_count = (\n             SELECT COUNT(*) FROM follows WHERE leader_id=$1 AND is_active=TRUE\n           ) WHERE user_id=$1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1601b12bdea3c5999a27943309b63b580ae32688abaaefb2b729a5b1271a4ebf"
+}

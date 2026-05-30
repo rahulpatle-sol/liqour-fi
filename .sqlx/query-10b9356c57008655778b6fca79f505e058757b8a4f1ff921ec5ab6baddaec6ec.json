@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE orders SET status = 'cancelled', updated_at = NOW() WHERE order_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "10b9356c57008655778b6fca79f505e058757b8a4f1ff921ec5ab6baddaec6ec"
+}

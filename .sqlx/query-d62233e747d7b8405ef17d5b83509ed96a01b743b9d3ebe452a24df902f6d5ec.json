@@ -1,0 +1,109 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT order_id, user_id, market, side, type as order_type, price, qty, filled_qty, margin, leverage, status, is_copy_order, copied_from_user_id, created_at, updated_at FROM orders WHERE user_id=$1 AND status=$2 AND market=$3 ORDER BY created_at DESC LIMIT $4",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "order_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "market",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "side",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "order_type",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "price",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 6,
+        "name": "qty",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 7,
+        "name": "filled_qty",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 8,
+        "name": "margin",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 9,
+        "name": "leverage",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "status",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 11,
+        "name": "is_copy_order",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 12,
+        "name": "copied_from_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 13,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 14,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "d62233e747d7b8405ef17d5b83509ed96a01b743b9d3ebe452a24df902f6d5ec"
+}

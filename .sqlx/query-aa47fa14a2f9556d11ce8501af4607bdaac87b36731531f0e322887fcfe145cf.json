@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO engine_snapshots (snapshot_data) VALUES ($1)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aa47fa14a2f9556d11ce8501af4607bdaac87b36731531f0e322887fcfe145cf"
+}

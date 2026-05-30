@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT f.follower_id, f.copy_amount, b.available\n           FROM follows f\n           JOIN balances b ON b.user_id = f.follower_id\n           WHERE f.leader_id = $1 AND f.is_active = TRUE",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "follower_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "copy_amount",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 2,
+        "name": "available",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "8a9e1faa7bbd751a1fa4a8dda462b699a1d7dbf424031933ab6752b056dd2588"
+}

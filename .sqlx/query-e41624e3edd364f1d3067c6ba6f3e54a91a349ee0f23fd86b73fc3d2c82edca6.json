@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT fill_id, maker_user_id, taker_user_id, market, price, qty, pnl, created_at FROM fills WHERE maker_user_id=$1 OR taker_user_id=$1 ORDER BY created_at DESC LIMIT 20",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "fill_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "maker_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "taker_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "market",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "price",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "qty",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 6,
+        "name": "pnl",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "e41624e3edd364f1d3067c6ba6f3e54a91a349ee0f23fd86b73fc3d2c82edca6"
+}

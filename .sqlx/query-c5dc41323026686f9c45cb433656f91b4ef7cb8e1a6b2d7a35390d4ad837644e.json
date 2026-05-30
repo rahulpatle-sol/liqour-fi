@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE follows SET is_active=FALSE WHERE follower_id=$1 AND leader_id=$2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c5dc41323026686f9c45cb433656f91b4ef7cb8e1a6b2d7a35390d4ad837644e"
+}

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO fills\n           (fill_id, maker_user_id, taker_user_id, market, price, qty,\n            maker_order_id, taker_order_id, pnl)\n           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Numeric",
+        "Numeric",
+        "Uuid",
+        "Uuid",
+        "Numeric"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9a5ee2eba56448d6e1189e07342c029e995a4d335c90577c634eb4eda4075dd2"
+}

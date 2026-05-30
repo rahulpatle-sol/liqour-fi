@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO trader_stats (user_id, total_pnl, win_count, loss_count, total_trades, total_volume)\n           VALUES ($1,$2,$3,$4,1,$5)\n           ON CONFLICT (user_id) DO UPDATE SET\n             total_pnl   = trader_stats.total_pnl + $2,\n             win_count   = trader_stats.win_count + $3,\n             loss_count  = trader_stats.loss_count + $4,\n             total_trades = trader_stats.total_trades + 1,\n             total_volume = trader_stats.total_volume + $5,\n             updated_at  = NOW()",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Numeric",
+        "Int8",
+        "Int8",
+        "Numeric"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0fd1805f208d0297482480999472e9521a1b049dee61b979e7108a3a15c70a2b"
+}

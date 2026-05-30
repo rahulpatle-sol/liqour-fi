@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT u.user_id, u.wallet_address, u.username,\n            ts.total_pnl, ts.win_count, ts.loss_count, ts.total_trades,\n            ts.total_volume, ts.follower_count,\n            CASE WHEN ts.total_trades > 0\n              THEN ROUND((ts.win_count::float/ts.total_trades*100)::numeric,1)\n              ELSE 0 END as win_rate\n           FROM users u\n           LEFT JOIN trader_stats ts ON ts.user_id = u.user_id\n           WHERE u.user_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "wallet_address",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "total_pnl",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 4,
+        "name": "win_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "loss_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "total_trades",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "total_volume",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 8,
+        "name": "follower_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "win_rate",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "f1dbfad1c50b5575734b34b4203561ced4b7e1479d56475680c3d5061a69d1ee"
+}

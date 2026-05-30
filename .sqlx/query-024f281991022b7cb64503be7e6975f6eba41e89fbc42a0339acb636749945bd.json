@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM engine_snapshots\n           WHERE snapshot_id NOT IN (\n             SELECT snapshot_id FROM engine_snapshots\n             ORDER BY created_at DESC LIMIT 10\n           )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "024f281991022b7cb64503be7e6975f6eba41e89fbc42a0339acb636749945bd"
+}

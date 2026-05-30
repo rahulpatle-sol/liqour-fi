@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT f.follower_id, f.copy_amount,\n                  u.username, u.wallet_address\n           FROM follows f\n           JOIN users u ON u.user_id = f.follower_id\n           WHERE f.leader_id=$1 AND f.is_active=TRUE",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "follower_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "copy_amount",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 2,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "wallet_address",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "6e502799b6be73b5bffc644295270c6cde9731545398fde95d245f49fa7ba186"
+}

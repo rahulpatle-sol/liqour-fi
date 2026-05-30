@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT f.leader_id, f.copy_amount, f.is_active,\n                  u.username, u.wallet_address,\n                  ts.total_pnl, ts.win_count, ts.total_trades\n           FROM follows f\n           JOIN users u ON u.user_id = f.leader_id\n           LEFT JOIN trader_stats ts ON ts.user_id = f.leader_id\n           WHERE f.follower_id=$1 AND f.is_active=TRUE",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "leader_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "copy_amount",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 2,
+        "name": "is_active",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "wallet_address",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "total_pnl",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 6,
+        "name": "win_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "total_trades",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "cb8b57e1a78f2dcdde439242805956332c5b2c1f04eac15a6f05bce47438597f"
+}
