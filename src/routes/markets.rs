@@ -75,7 +75,14 @@ pub async fn get_trades(
     let rows = sqlx::query!(
         "SELECT fill_id, market, price, qty, created_at FROM fills WHERE market=$1 ORDER BY created_at DESC LIMIT 50",
         market
-    ).fetch_all(&state.db).await?;
+    ).fetch_all(&state.db).await?
+    .into_iter().map(|r| serde_json::json!({
+        "fill_id": r.fill_id,
+        "market": r.market,
+        "price": r.price,
+        "qty": r.qty,
+        "created_at": r.created_at,
+    })).collect::<Vec<_>>();
 
     Ok(Json(serde_json::json!({ "trades": rows })))
 }

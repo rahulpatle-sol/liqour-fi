@@ -68,14 +68,24 @@ pub async fn get_following(
     auth: AuthUser,
 ) -> Result<Json<serde_json::Value>> {
     let rows = sqlx::query!(
-        r#"SELECT f.*, u.username, u.wallet_address,
-            ts.total_pnl, ts.win_count, ts.total_trades
+        r#"SELECT f.leader_id, f.copy_amount, f.is_active,
+                  u.username, u.wallet_address,
+                  ts.total_pnl, ts.win_count, ts.total_trades
            FROM follows f
            JOIN users u ON u.user_id = f.leader_id
            LEFT JOIN trader_stats ts ON ts.user_id = f.leader_id
            WHERE f.follower_id=$1 AND f.is_active=TRUE"#,
         auth.user_id
-    ).fetch_all(&state.db).await?;
+    ).fetch_all(&state.db).await?
+    .into_iter().map(|r| serde_json::json!({
+        "leader_id": r.leader_id,
+        "copy_amount": r.copy_amount,
+        "username": r.username,
+        "wallet_address": r.wallet_address,
+        "total_pnl": r.total_pnl,
+        "win_count": r.win_count,
+        "total_trades": r.total_trades,
+    })).collect::<Vec<_>>();
 
     Ok(Json(serde_json::json!({ "following": rows })))
 }
@@ -86,12 +96,19 @@ pub async fn get_followers(
     auth: AuthUser,
 ) -> Result<Json<serde_json::Value>> {
     let rows = sqlx::query!(
-        r#"SELECT f.*, u.username, u.wallet_address
+        r#"SELECT f.follower_id, f.copy_amount,
+                  u.username, u.wallet_address
            FROM follows f
            JOIN users u ON u.user_id = f.follower_id
            WHERE f.leader_id=$1 AND f.is_active=TRUE"#,
         auth.user_id
-    ).fetch_all(&state.db).await?;
+    ).fetch_all(&state.db).await?
+    .into_iter().map(|r| serde_json::json!({
+        "follower_id": r.follower_id,
+        "copy_amount": r.copy_amount,
+        "username": r.username,
+        "wallet_address": r.wallet_address,
+    })).collect::<Vec<_>>();
 
     Ok(Json(serde_json::json!({ "followers": rows })))
 }

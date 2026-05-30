@@ -68,9 +68,8 @@ pub async fn start_price_feed(
 
                         if let Some(market) = market {
                             let raw: i64 = parsed.price.price.parse().unwrap_or(0);
-                            let price = Decimal::from(raw)
-                                * Decimal::from(10i64.pow(parsed.price.expo.unsigned_abs()))
-                                    .checked_inv().unwrap_or(dec!(1));
+                            let expo = Decimal::from(10i64.pow(parsed.price.expo.unsigned_abs()));
+                            let price = Decimal::from(raw) / expo;
 
                             if price > dec!(0) {
                                 prices.insert(market.as_str().to_string(), price);
@@ -106,7 +105,6 @@ fn update_candle(candles: &Arc<DashMap<String, Vec<Candle>>>, market: &str, pric
         volume: dec!(0), timestamp: now_min,
     });
 
-    // Keep last 1000 candles
     if entry.len() > 1000 {
         entry.remove(0);
     }

@@ -508,12 +508,12 @@ async fn trigger_copy_trades(
             follower_qty, market.as_str(), price
         );
 
-        let _ = handle_place_order(
-            follower_id, market, side, order_type,
-            price, follower_qty, leverage,
-            true, Some(leader_id),
-            state, db, event_tx
-        ).await;
+     let _ = Box::pin(handle_place_order(
+    follower_id, market, side, order_type,
+    price, follower_qty, leverage,
+    true, Some(leader_id),
+    state, db, event_tx
+)).await;
     }
 }
 
@@ -645,7 +645,7 @@ pub async fn load_state_from_db(
             margin: row.margin,
             leverage: row.leverage,
             liquidation_price: row.liquidation_price,
-            opened_at: row.opened_at,
+            opened_at: row.opened_at.unwrap_or_else(|| Utc::now()),
         });
     }
 

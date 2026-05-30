@@ -51,14 +51,25 @@ pub async fn get_history(
     auth: AuthUser,
 ) -> Result<Json<serde_json::Value>> {
     let fills = sqlx::query!(
-        r#"SELECT f.*, u1.username as maker_username, u2.username as taker_username
+        r#"SELECT f.fill_id, f.market, f.price, f.qty, f.pnl, f.created_at,
+                  u1.username as maker_username, u2.username as taker_username
            FROM fills f
            LEFT JOIN users u1 ON u1.user_id = f.maker_user_id
            LEFT JOIN users u2 ON u2.user_id = f.taker_user_id
            WHERE f.maker_user_id = $1 OR f.taker_user_id = $1
            ORDER BY f.created_at DESC LIMIT 50"#,
         auth.user_id
-    ).fetch_all(&state.db).await?;
+    ).fetch_all(&state.db).await?
+    .into_iter().map(|r| serde_json::json!({
+        "fill_id": r.fill_id,
+        "market": r.market,
+        "price": r.price,
+        "qty": r.qty,
+        "pnl": r.pnl,
+        "maker_username": r.maker_username,
+        "taker_username": r.taker_username,
+        "created_at": r.created_at,
+    })).collect::<Vec<_>>();
 
     Ok(Json(serde_json::json!({ "history": fills })))
 }

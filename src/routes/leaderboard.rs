@@ -108,9 +108,19 @@ pub async fn get_trader(
     let trader = trader.ok_or_else(|| crate::error::AppError::NotFound("Trader not found".into()))?;
 
     let fills = sqlx::query!(
-        "SELECT * FROM fills WHERE maker_user_id=$1 OR taker_user_id=$1 ORDER BY created_at DESC LIMIT 20",
+        "SELECT fill_id, maker_user_id, taker_user_id, market, price, qty, pnl, created_at FROM fills WHERE maker_user_id=$1 OR taker_user_id=$1 ORDER BY created_at DESC LIMIT 20",
         user_id
-    ).fetch_all(&state.db).await?;
+    ).fetch_all(&state.db).await?
+    .into_iter().map(|r| serde_json::json!({
+        "fill_id": r.fill_id,
+        "maker_user_id": r.maker_user_id,
+        "taker_user_id": r.taker_user_id,
+        "market": r.market,
+        "price": r.price,
+        "qty": r.qty,
+        "pnl": r.pnl,
+        "created_at": r.created_at,
+    })).collect::<Vec<_>>();
 
     let st = state.engine_state.read().await;
     let positions_with_pnl: Vec<PositionWithPnl> = st.get_positions(user_id).into_iter().map(|pos| {

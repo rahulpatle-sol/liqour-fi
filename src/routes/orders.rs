@@ -107,20 +107,53 @@ pub async fn get_orders(
     let orders = if let Some(status) = &params.status {
         if let Some(market) = &params.market {
             sqlx::query!(
-                "SELECT * FROM orders WHERE user_id=$1 AND status=$2 AND market=$3 ORDER BY created_at DESC LIMIT $4",
+                "SELECT order_id, user_id, market, side, type as order_type, price, qty, filled_qty, margin, leverage, status, is_copy_order, copied_from_user_id, created_at, updated_at FROM orders WHERE user_id=$1 AND status=$2 AND market=$3 ORDER BY created_at DESC LIMIT $4",
                 auth.user_id, status, market, limit
             ).fetch_all(&state.db).await?
+            .into_iter().map(|r| serde_json::json!({
+                "order_id": r.order_id,
+                "market": r.market,
+                "side": r.side,
+                "type": r.order_type,
+                "price": r.price,
+                "qty": r.qty,
+                "filled_qty": r.filled_qty,
+                "status": r.status,
+                "created_at": r.created_at,
+            })).collect::<Vec<_>>()
         } else {
             sqlx::query!(
-                "SELECT * FROM orders WHERE user_id=$1 AND status=$2 ORDER BY created_at DESC LIMIT $3",
+                "SELECT order_id, user_id, market, side, type as order_type, price, qty, filled_qty, margin, leverage, status, is_copy_order, copied_from_user_id, created_at, updated_at FROM orders WHERE user_id=$1 AND status=$2 ORDER BY created_at DESC LIMIT $3",
                 auth.user_id, status, limit
             ).fetch_all(&state.db).await?
+            .into_iter().map(|r| serde_json::json!({
+                "order_id": r.order_id,
+                "market": r.market,
+                "side": r.side,
+                "type": r.order_type,
+                "price": r.price,
+                "qty": r.qty,
+                "filled_qty": r.filled_qty,
+                "status": r.status,
+                "created_at": r.created_at,
+            })).collect::<Vec<_>>()
         }
     } else {
         sqlx::query!(
-            "SELECT * FROM orders WHERE user_id=$1 ORDER BY created_at DESC LIMIT $2",
+            "SELECT order_id, user_id, market, side, type as order_type, price, qty, filled_qty, margin, leverage, status, is_copy_order, copied_from_user_id, created_at, updated_at FROM orders WHERE user_id=$1 ORDER BY created_at DESC LIMIT $2",
             auth.user_id, limit
         ).fetch_all(&state.db).await?
+        .into_iter().map(|r| serde_json::json!({
+            "order_id": r.order_id,
+            "market": r.market,
+            "side": r.side,
+            "type": r.order_type,
+            "price": r.price,
+            "qty": r.qty,
+            "filled_qty": r.filled_qty,
+            "status": r.status,
+            "created_at": r.created_at,
+        })).collect::<Vec<_>>()
     };
 
     Ok(Json(serde_json::json!({ "orders": orders })))
