@@ -140,7 +140,7 @@ pub async fn request_withdraw(
     .await?;
 
     // TODO: Call Anchor withdraw instruction via solana-sdk
-    // let tx_sig = send_withdraw(&auth.wallet_address, body.amount, keypair_path).await?;
+     tx_sig = send_withdraw(&auth.wallet_address, body.amount, keypair_path).await?;
     // For now — return pending status
     tracing::info!(
         "Withdraw requested: {} USDC for {}",
