@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE balances SET available = available - $1, updated_at = NOW() WHERE user_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Numeric",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "73b7a75c1384d1a0d813ac87010a3f7330bff68c0bc39fd83996ddb41cc4b947"
+}
