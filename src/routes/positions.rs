@@ -2,12 +2,11 @@
 use axum::{extract::{Path, Query, State}, Json};
 use rust_decimal_macros::dec;
 use serde::Deserialize;
-
 use crate::{
     engine::AppState,
-    error::Result,
+    error::{AppError, Result},
     middleware::auth::AuthUser,
-    types::{Market, PositionWithPnl, Side},
+    types::{PositionWithPnl, Side, OrderType, EngineCmd, PlaceOrderCmd},
 };
 
 // GET /positions
@@ -91,4 +90,54 @@ pub async fn get_candles(
         .unwrap_or_default();
 
     Ok(Json(serde_json::json!({ "market": key, "candles": candles })))
+}
+//  close the poition 
+// POST /positions/close
+pub async fn close_position(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Json(body): Json<ClosePositionRequest>,
+) -> Result<Json<serde_json::Value>> {
+    
+    let st = state.engine_state.read().await;
+    let positions = st.get_positions(auth.user_id);
+    
+    // Position dhundh
+    let pos = positions.iter()
+        .find(|p| p.market.as_str() == body.market.to_uppercase().as_str())
+        .ok_or_else(|| AppError::NotFound("Position not found".into()))?
+        .clone();
+    drop(st);
+
+    // Opposite side pe market order place karo
+    let close_side = match pos.side {
+        Side::Long  => "short",   // Long close = Short
+        Side::Short => "long",    // Short close = Long
+    };
+
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    state.engine_tx.send(EngineCmd::PlaceOrder(PlaceOrderCmd {
+        user_id: auth.user_id,
+        market: pos.market,
+        side: if close_side == "short" { Side::Short } else { Side::Long },
+        order_type: OrderType::Market,
+        price: dec!(0),
+        qty: pos.qty,          // Same qty = full close
+        leverage: pos.leverage,
+        is_copy_order: false,
+        copied_from_user_id: None,
+        resp: tx,
+    })).await
+    .map_err(|_| AppError::Internal(anyhow::anyhow!("Engine unavailable")))?;
+
+    rx.await
+        .map_err(|_| AppError::Internal(anyhow::anyhow!("Engine response lost")))?
+        .map_err(|e| AppError::BadRequest(e.to_string()))?;
+
+    Ok(Json(serde_json::json!({ "success": true, "closed": body.market })))
+}
+
+#[derive(serde::Deserialize)]
+pub struct ClosePositionRequest {
+    pub market: String,
 }

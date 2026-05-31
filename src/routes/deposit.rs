@@ -4,10 +4,9 @@
 use axum::{extract::State, Json};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::{
-    engine::{AppState, deposit as engine_deposit},
+    engine::AppState,
     error::{AppError, Result},
     middleware::auth::AuthUser,
     solana::verify_deposit_tx,

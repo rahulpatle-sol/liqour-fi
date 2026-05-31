@@ -105,6 +105,12 @@ pub fn match_order(order: &mut Order, ob: &mut Orderbook, user_id: Uuid) -> Vec<
     fills
 }
 
+// ─── CHANGE: match_market ab synthetic fill karta hai ─────────────────────────
+// Pehle: sirf existing orderbook orders se match karta tha
+//        Agar orderbook empty → zero fills → order "Open" rehta tha → fills table empty
+// Ab:    Pehle existing orders se match karta hai (same as before)
+//        Phir agar abhi bhi unfilled qty bachi hai → index_price pe synthetic fill create karta hai
+//        Matlab market order HAMESHA fill hoga (real perps exchange ki tarah)
 fn match_market(
     taker: &mut Order,
     ob: &mut Orderbook,
@@ -122,7 +128,7 @@ fn match_market(
 
     let mut remaining = taker.qty - taker.filled_qty;
 
-    'outer: for price in prices {
+    for price in prices {
         if remaining <= dec!(0) { break; }
 
         let level = match book.get_mut(&price) {
@@ -138,7 +144,6 @@ fn match_market(
 
             let fill_qty = remaining.min(maker.qty - maker.filled_qty);
 
-            // Create fill
             fills.push(InternalFill {
                 maker_user_id: Some(maker.user_id),
                 taker_user_id,
@@ -163,14 +168,35 @@ fn match_market(
             }
         }
 
-        // Remove filled orders (reverse order to preserve indices)
         for i in orders_to_remove.into_iter().rev() {
             level.orders.remove(i);
         }
     }
 
-    // Remove empty levels
     book.retain(|_, level| !level.orders.is_empty());
+
+    // ─── NEW: Synthetic fill ──────────────────────────────────────────────────
+    // Agar orderbook mein koi counterparty nahi tha ya partially fill hua
+    // toh bacha hua qty index_price pe protocol ke against fill karo
+    // maker_user_id = None matlab protocol/AMM ne fill kiya
+    let remaining = taker.qty - taker.filled_qty;
+    if remaining > dec!(0) && ob.index_price > dec!(0) {
+        fills.push(InternalFill {
+            maker_user_id: None,           // Protocol fill — koi real maker nahi
+            taker_user_id,
+            market: taker.market,
+            price: ob.index_price,         // Current index price pe fill
+            qty: remaining,
+            maker_order_id: None,
+            taker_order_id: taker.order_id,
+            maker_side: opposite_side(taker.side),
+            taker_side: taker.side,
+        });
+
+        taker.filled_qty += remaining;
+        ob.last_traded_price = ob.index_price;
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     taker.status = if taker.filled_qty >= taker.qty {
         OrderStatus::Filled

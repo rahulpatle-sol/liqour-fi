@@ -7,6 +7,7 @@ mod price;
 mod routes;
 mod types;
 mod ws;
+mod solana;
 
 use std::sync::Arc;
 use axum::{
@@ -149,11 +150,15 @@ async fn main() -> anyhow::Result<()> {
 
         // WebSocket
         .route("/ws", get(ws::ws_handler))
-
+       //  new solana routes
+       .route("/deposit/verify",           post(routes::deposit::verify_deposit))
+        .route("/deposit/withdraw-request", post(routes::deposit::request_withdraw))
+        // close the trade also 
+        .route("/positions/close", post(routes::positions::close_position))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(app_state);
-
+       
     // ── Listen ────────────────────────────────────────────────────────────────
     let port = config.port;
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port)).await?;

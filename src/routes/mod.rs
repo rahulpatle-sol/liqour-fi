@@ -4,3 +4,4 @@ pub mod positions;
 pub mod leaderboard;
 pub mod follow;
 pub mod markets;
+pub mod deposit;
