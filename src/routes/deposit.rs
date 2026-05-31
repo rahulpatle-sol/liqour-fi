@@ -9,7 +9,7 @@ use crate::{
     engine::AppState,
     error::{AppError, Result},
     middleware::auth::AuthUser,
-    solana::verify_deposit_tx,
+    solana::{send_withdraw, verify_deposit_tx},
 };
 
 #[derive(Deserialize)]
@@ -121,7 +121,6 @@ pub async fn request_withdraw(
 
     // Deduct from balance first
     let (tx, rx) = tokio::sync::oneshot::channel();
-    // Negative deposit = deduct
     state.engine_tx
         .send(crate::types::EngineCmd::Deposit(crate::types::DepositCmd {
             user_id: auth.user_id,
@@ -139,9 +138,12 @@ pub async fn request_withdraw(
     .execute(&state.db)
     .await?;
 
-    // TODO: Call Anchor withdraw instruction via solana-sdk
-     tx_sig = send_withdraw(&auth.wallet_address, body.amount, keypair_path).await?;
-    // For now — return pending status
+    let backend_keypair_path = std::env::var("BACKEND_KEYPAIR_PATH").unwrap_or_else(|_| {
+        let home = std::env::var("HOME").unwrap_or_default();
+        format!("{}/.config/solana/id.json", home)
+    });
+    let tx_sig = send_withdraw(&auth.wallet_address, body.amount, &backend_keypair_path).await?;
+
     tracing::info!(
         "Withdraw requested: {} USDC for {}",
         body.amount, auth.wallet_address
@@ -152,6 +154,6 @@ pub async fn request_withdraw(
         "amount": body.amount,
         "status": "pending",
         "message": "Withdraw queued. Will arrive in your wallet within 30 seconds.",
-        // "tx_signature": tx_sig,  // uncomment after Anchor withdraw implemented
+        "tx_signature": tx_sig,
     })))
 }
