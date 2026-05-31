@@ -1,0 +1,6 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/rahulpatle-sol/liqour_fi.git
+[submodule "contract"]
+	path = contract
+	url = https://github.com/rahulpatle-sol/liqour_fi_anchor.git
