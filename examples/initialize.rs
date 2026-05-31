@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{str::FromStr, time::Duration};
 
 use solana_sdk::{
     instruction::{AccountMeta, Instruction},
@@ -17,11 +17,10 @@ const INIT_DISCRIMINATOR: [u8; 8] = [175, 175, 109, 31, 13, 152, 155, 237];
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let keypair_path = std::env::var("KEYPAIR_PATH")
-        .unwrap_or_else(|_| {
-            let home = std::env::var("HOME").unwrap_or_default();
-            format!("{}/.config/solana/id.json", home)
-        });
+    let keypair_path = std::env::var("KEYPAIR_PATH").unwrap_or_else(|_| {
+        let home = std::env::var("HOME").unwrap_or_default();
+        format!("{}/.config/solana/id.json", home)
+    });
 
     let data = std::fs::read_to_string(&keypair_path)?;
     let secret: Vec<u8> = serde_json::from_str(&data)?;
@@ -54,20 +53,41 @@ async fn main() -> anyhow::Result<()> {
         data: INIT_DISCRIMINATOR.to_vec(),
     };
 
-    let blockhash = get_blockhash().await?;
-
-    let tx = Transaction::new_signed_with_payer(
-        &[ix],
-        Some(&payer.pubkey()),
-        &[&payer, &vault_ta],
-        blockhash,
-    );
-
-    let sig = send_tx(&tx).await?;
+    let sig = send_with_retry(&payer, &vault_ta, &ix).await?;
     println!("Initialize tx: https://explorer.solana.com/tx/{}?cluster=devnet", sig);
     println!("\nSet this env var in your backend:");
     println!("VAULT_TOKEN_ACCOUNT={}", vault_ta.pubkey());
     Ok(())
+}
+
+async fn send_with_retry(
+    payer: &Keypair,
+    vault_ta: &Keypair,
+    ix: &Instruction,
+) -> anyhow::Result<String> {
+    for attempt in 0..5 {
+        let blockhash = get_blockhash().await?;
+        let tx = Transaction::new_signed_with_payer(
+            &[ix.clone()],
+            Some(&payer.pubkey()),
+            &[payer, vault_ta],
+            blockhash,
+        );
+
+        match send_tx(&tx).await {
+            Ok(sig) => return Ok(sig),
+            Err(e) => {
+                let msg = e.to_string();
+                if msg.contains("BlockhashNotFound") && attempt < 4 {
+                    tracing::warn!("Blockhash expired, retrying ({}/5)...", attempt + 1);
+                    tokio::time::sleep(Duration::from_secs(1)).await;
+                    continue;
+                }
+                return Err(e);
+            }
+        }
+    }
+    anyhow::bail!("Failed to send transaction after 5 attempts");
 }
 
 async fn get_blockhash() -> anyhow::Result<solana_sdk::hash::Hash> {
@@ -75,7 +95,7 @@ async fn get_blockhash() -> anyhow::Result<solana_sdk::hash::Hash> {
     let body = serde_json::json!({
         "jsonrpc": "2.0", "id": 1,
         "method": "getLatestBlockhash",
-        "params": [{ "commitment": "confirmed" }]
+        "params": [{ "commitment": "finalized" }]
     });
     let resp = client.post(DEVNET_RPC).json(&body).send().await?
         .json::<serde_json::Value>().await?;
@@ -90,7 +110,7 @@ async fn send_tx(tx: &Transaction) -> anyhow::Result<String> {
     let body = serde_json::json!({
         "jsonrpc": "2.0", "id": 1,
         "method": "sendTransaction",
-        "params": [encoded, { "encoding": "base58", "skipPreflight": false, "commitment": "confirmed" }]
+        "params": [encoded, { "encoding": "base58", "skipPreflight": true, "commitment": "confirmed" }]
     });
     let resp = client.post(DEVNET_RPC).json(&body).send().await?
         .json::<serde_json::Value>().await?;
