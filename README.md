@@ -262,7 +262,7 @@ bun run dev
 
 ## Team
 
-Built solo for **Superteam India Fellowship Capstone** — 1 week build.
+
 
 ---
 
