@@ -55,6 +55,8 @@ Next.js 14 Frontend
 - **WebSocket fan-out** — zero polling on the frontend
 
 ---
+![Uploading image.png…]()
+
 
 ## Tech Stack
 
