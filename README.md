@@ -55,7 +55,7 @@ Next.js 14 Frontend
 - **WebSocket fan-out** — zero polling on the frontend
 
 ---
-![Uploading image.png…]()
+<img width="1101" height="665" alt="image" src="https://github.com/user-attachments/assets/a2c549a1-2802-48b6-8580-f3bacf1d9922" />
 
 
 ## Tech Stack
@@ -125,6 +125,7 @@ Next.js 14 Frontend
 ```
 
 **Why atomic?** Copy trade runs inside the engine task — the single mpsc consumer. If it ran in the HTTP handler, there's a race: leader fills, price moves, follower gets a worse entry. Inside the engine, both orders are processed in the same tick — same price, same moment.
+![Uploading image.png…]()
 
 ---
 
